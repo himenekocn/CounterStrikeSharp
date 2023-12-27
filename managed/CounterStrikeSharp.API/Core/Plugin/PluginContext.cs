@@ -21,9 +21,12 @@ using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Core.Hosting;
 using CounterStrikeSharp.API.Core.Logging;
+using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Core.Plugin.Host;
 using McMaster.NETCore.Plugins;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -46,6 +49,9 @@ namespace CounterStrikeSharp.API.Core.Plugin
         private readonly string _path;
         private readonly FileSystemWatcher _fileWatcher;
         private IServiceScope _serviceScope;
+        private readonly IServiceProvider _applicationServiceProvider;
+        
+        public string FilePath => _path;
 
         // TOOD: ServiceCollection
         private ILogger _logger = CoreLogging.Factory.CreateLogger<PluginContext>();
@@ -80,11 +86,14 @@ namespace CounterStrikeSharp.API.Core.Plugin
 
                 _fileWatcher.Deleted += async (s, e) =>
                 {
-                    if (e.FullPath == path)
+                    Server.NextWorldUpdate(() =>
                     {
-                        _logger.LogInformation("Plugin {Name} has been deleted, unloading...", Plugin.ModuleName);
-                        Unload(true);
-                    }
+                        if (e.FullPath == path)
+                        {
+                            _logger.LogInformation("Plugin {Name} has been deleted, unloading...", Plugin.ModuleName);
+                            Unload(true);
+                        }
+                    });
                 };
 
                 _fileWatcher.Filter = "*.dll";
@@ -95,11 +104,14 @@ namespace CounterStrikeSharp.API.Core.Plugin
 
         private Task OnReloadedAsync(object sender, PluginReloadedEventArgs eventargs)
         {
-            _logger.LogInformation("Reloading plugin {Name}", Plugin.ModuleName);
-            Loader = eventargs.Loader;
-            Unload(hotReload: true);
-            Load(hotReload: true);
-
+            Server.NextWorldUpdate(() =>
+            {
+                _logger.LogInformation("Reloading plugin {Name}", Plugin.ModuleName);
+                Loader = eventargs.Loader;
+                Unload(hotReload: true);
+                Load(hotReload: true);
+            });
+            
             return Task.CompletedTask;
         }
 
@@ -165,11 +177,16 @@ namespace CounterStrikeSharp.API.Core.Plugin
                     }
                 }
 
+                serviceCollection.AddSingleton<IPluginContext>(this);
+                serviceCollection.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+                serviceCollection.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
+                serviceCollection.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
+                
+
                 serviceCollection.AddScoped<ICommandManager>((x) => _commandManager);
                 serviceCollection.Decorate<ICommandManager>((inner, provider) =>
                     new PluginCommandManagerDecorator(inner));
 
-                serviceCollection.AddSingleton<IPluginContext>(this);
                 ServiceProvider = serviceCollection.BuildServiceProvider();
 
                 var minimumApiVersion = pluginType.GetCustomAttribute<MinimumApiVersion>()?.Version;
@@ -195,6 +212,7 @@ namespace CounterStrikeSharp.API.Core.Plugin
                     .CreateLogger(pluginType);
                 Plugin.CommandManager = _serviceScope.ServiceProvider.GetRequiredService<ICommandManager>();
                 Plugin.RegisterAllAttributes(Plugin);
+                Plugin.Localizer = _serviceScope.ServiceProvider.GetRequiredService<IStringLocalizer>();
 
                 Plugin.InitializeConfig(Plugin, pluginType);
                 Plugin.Load(hotReload);

@@ -75,12 +75,47 @@ namespace CounterStrikeSharp.API
             return new Target(pattern).GetTarget(player);
         }
 
+        public static bool RemoveItemByDesignerName(this CCSPlayerController player, string designerName)
+        {
+            return RemoveItemByDesignerName(player, designerName, false);
+        }
+
+        public static bool RemoveItemByDesignerName(this CCSPlayerController player, string designerName, bool shouldRemoveEntity)
+        {
+            CHandle<CBasePlayerWeapon>? item = null;
+            if (player.PlayerPawn.Value == null || player.PlayerPawn.Value.WeaponServices == null) return false;
+
+            foreach(var weapon in player.PlayerPawn.Value.WeaponServices.MyWeapons)
+            {
+                if (weapon is not { IsValid: true, Value.IsValid: true }) 
+                    continue;
+                if (weapon.Value.DesignerName != designerName) 
+                    continue;
+
+                item = weapon;
+            }
+            
+            if (item != null && item.Value != null)
+            {
+                player.PlayerPawn.Value.RemovePlayerItem(item.Value);
+
+                if (shouldRemoveEntity)
+                {
+                    item.Value.Remove();
+                }
+
+                return true;
+            }
+            
+            return false;
+        }
+
         public static IEnumerable<T> FindAllEntitiesByDesignerName<T>(string designerName) where T : CEntityInstance
         {
             var pEntity = new CEntityIdentity(EntitySystem.FirstActiveEntity);
             for (; pEntity != null && pEntity.Handle != IntPtr.Zero; pEntity = pEntity.Next)
             {
-                if (!pEntity.DesignerName.Contains(designerName)) continue;
+                if (pEntity.DesignerName == null || !pEntity.DesignerName.Contains(designerName)) continue;
                 yield return new PointerTo<T>(pEntity.Handle).Value;
             }
         }
@@ -101,9 +136,9 @@ namespace CounterStrikeSharp.API
         {
             List<CCSPlayerController> players = new();
 
-            for (int i = 1; i <= Server.MaxPlayers; i++)
+            for (int i = 0; i <= Server.MaxPlayers; i++)
             {
-                var controller = GetPlayerFromIndex(i);
+                var controller = GetPlayerFromSlot(i);
 
                 if (!controller.IsValid || controller.UserId == -1)
                     continue;
@@ -149,6 +184,17 @@ namespace CounterStrikeSharp.API
                 Marshal.Copy(nativeUtf8, buffer, 0, buffer.Length);
                 return Encoding.UTF8.GetString(buffer);
             }
+        }
+
+        public static T? GetPointer<T>(IntPtr pointer) where T : NativeObject
+        {
+            var pointerTo = Marshal.ReadIntPtr(pointer);
+            if (pointerTo == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            return (T)Activator.CreateInstance(typeof(T), pointerTo)!;
         }
     }
 }
