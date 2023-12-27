@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://learn.microsoft.com/en-us/dotnet/fundamentals/package-validation/diagnostic-ids -->
+<Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Suppression>
+    <DiagnosticId>CP0001</DiagnosticId>
+    <Target>T:CounterStrikeSharp.API.Modules.Utils.CommandUtils</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:CounterStrikeSharp.API.Core.Application.#ctor(Microsoft.Extensions.Logging.ILoggerFactory,CounterStrikeSharp.API.Core.Hosting.IScriptHostConfiguration,CounterStrikeSharp.API.Core.GameDataProvider,CounterStrikeSharp.API.Core.CoreConfig,CounterStrikeSharp.API.Core.Plugin.Host.IPluginManager,CounterStrikeSharp.API.Core.Plugin.Host.IPluginContextQueryHandler,CounterStrikeSharp.API.Core.Translations.IPlayerLanguageManager)</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:CounterStrikeSharp.API.Core.CoreConfig.#ctor(CounterStrikeSharp.API.Core.Hosting.IScriptHostConfiguration,Microsoft.Extensions.Logging.ILogger{CounterStrikeSharp.API.Core.CoreConfig})</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:CounterStrikeSharp.API.Core.Plugin.Host.PluginManager.#ctor(CounterStrikeSharp.API.Core.Hosting.IScriptHostConfiguration,Microsoft.Extensions.Logging.ILogger{CounterStrikeSharp.API.Core.Plugin.Host.PluginManager},System.IServiceProvider)</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:CounterStrikeSharp.API.Core.Plugin.PluginContext.#ctor(System.IServiceProvider,CounterStrikeSharp.API.Core.Hosting.IScriptHostConfiguration,System.String,System.Int32)</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0006</DiagnosticId>
+    <Target>P:CounterStrikeSharp.API.Core.IPlugin.CommandManager</Target>
+    <Left>.\ApiCompat\v133.dll</Left>
+    <Right>obj\Debug\net7.0\CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+</Suppressions>

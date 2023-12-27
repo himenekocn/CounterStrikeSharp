@@ -52,7 +52,7 @@ namespace CounterStrikeSharp.API.Core
 
         public Application(ILoggerFactory loggerFactory, IScriptHostConfiguration scriptHostConfiguration,
             GameDataProvider gameDataProvider, CoreConfig coreConfig, IPluginManager pluginManager,
-            IPluginContextQueryHandler pluginContextQueryHandler, IPlayerLanguageManager playerLanguageManager,
+            IPlayerLanguageManager playerLanguageManager,
             IPluginContextQueryHandler pluginContextQueryHandler, ICommandManager commandManager,
             IServiceScopeFactory serviceScopeFactory)
         {
